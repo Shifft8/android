@@ -1,0 +1,9 @@
+.dart_tool/
+.idea/
+build/
+android/app/build/
+node_modules/
+*.apk
+*.so
+.flutter-plugins
+.flutter-plugins-dependencies

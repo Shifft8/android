@@ -1,0 +1,34 @@
+name: address_manager
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.0
+  cupertino_icons: ^1.0.8
+  url_launcher: ^6.3.0
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+  cloud_firestore: ^6.1.0
+  flutter_local_notifications: ^17.0.0
+  flutter_map: ^7.0.0
+  latlong2: ^0.9.0
+  geocoding: ^2.2.2
+  share_plus: ^10.1.4
+  shared_preferences: ^2.4.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+flutter:
+  uses-material-design: true
+  generate: true
+  l10n:
+    arb-dir: lib/l10n
+    template-arb-file: app_en.arb
+    output-localization-file: app_localizations.dart

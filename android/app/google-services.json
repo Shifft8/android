@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "801431143668",
+    "project_id": "adressmenedzer",
+    "storage_bucket": "adressmenedzer.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801431143668:android:80b50f6b84aef1f94f4aa1",
+        "android_client_info": {
+          "package_name": "com.example.address_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARkY9FFkTQCwjRpsSMPDTpz5loIKKQt-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

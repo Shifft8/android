@@ -1,9 +1,11 @@
 import 'dart:io' show Platform;
+
+import 'package:address_manager/l10n/app_localizations.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:address_manager/l10n/app_localizations.dart';
+
 import 'main_navigation.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -36,21 +38,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _loading = false;
   String? _error;
 
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _phoneController.dispose();
+    _countryController.dispose();
+    _cityController.dispose();
+    super.dispose();
+  }
+
+  MainNavigation _mainNavigation() => MainNavigation(
+        onLocaleChanged: widget.onLocaleChanged,
+        onDarkModeChanged: widget.onDarkModeChanged,
+        isDarkMode: widget.isDarkMode,
+        currentLocale: widget.currentLocale,
+      );
+
   Future<void> _register() async {
+    if (_loading) return;
     setState(() {
       _loading = true;
       _error = null;
     });
 
     try {
-      // Создаём пользователя в Firebase Auth
-      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        password: _passwordController.text,
       );
 
-      // Сохраняем профиль в Firestore
-      await FirebaseFirestore.instance.collection('users').doc(credential.user!.uid).set({
+      final user = credential.user;
+      if (user == null) {
+        throw StateError('Firebase did not return the created user.');
+      }
+
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
         'email': _emailController.text.trim(),
@@ -60,59 +86,76 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // Переход в MainNavigation
-      Navigator.pushReplacement(
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const MainNavigation()),
+        Platform.isIOS
+            ? CupertinoPageRoute(builder: (_) => _mainNavigation())
+            : MaterialPageRoute(builder: (_) => _mainNavigation()),
+        (_) => false,
       );
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        _error = e.message;
-      });
+      if (mounted) setState(() => _error = e.message ?? e.code);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = AppLocalizations.of(context)!.error);
+      }
     } finally {
-      setState(() {
-        _loading = false;
-      });
+      if (mounted) setState(() => _loading = false);
     }
   }
 
-  Widget _buildForm(BuildContext context, AppLocalizations loc) {
-    final fields = [
-      {'controller': _firstNameController, 'label': loc.firstName},
-      {'controller': _lastNameController, 'label': loc.lastName},
-      {'controller': _emailController, 'label': loc.email},
-      {'controller': _passwordController, 'label': loc.password, 'obscure': true},
-      {'controller': _phoneController, 'label': loc.phone},
-      {'controller': _countryController, 'label': loc.country},
-      {'controller': _cityController, 'label': loc.city},
+  Widget _buildForm(AppLocalizations loc) {
+    final fields = <({TextEditingController controller, String label, bool obscure})>[
+      (controller: _firstNameController, label: loc.firstName, obscure: false),
+      (controller: _lastNameController, label: loc.lastName, obscure: false),
+      (controller: _emailController, label: loc.email, obscure: false),
+      (controller: _passwordController, label: loc.password, obscure: true),
+      (controller: _phoneController, label: loc.phone, obscure: false),
+      (controller: _countryController, label: loc.country, obscure: false),
+      (controller: _cityController, label: loc.city, obscure: false),
     ];
 
     return Column(
       children: [
-        for (var f in fields)
+        for (final field in fields)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Platform.isIOS
                 ? CupertinoTextField(
-              controller: f['controller'] as TextEditingController,
-              placeholder: f['label'] as String,
-              obscureText: f['obscure'] == true,
-            )
+                    controller: field.controller,
+                    placeholder: field.label,
+                    obscureText: field.obscure,
+                  )
                 : TextField(
-              controller: f['controller'] as TextEditingController,
-              decoration: InputDecoration(labelText: f['label'] as String),
-              obscureText: f['obscure'] == true,
+                    controller: field.controller,
+                    decoration: InputDecoration(labelText: field.label),
+                    obscureText: field.obscure,
+                  ),
+          ),
+        const SizedBox(height: 12),
+        if (_error != null)
+          Text(
+            _error!,
+            style: TextStyle(
+              color: Platform.isIOS ? CupertinoColors.systemRed : Colors.red,
             ),
           ),
         const SizedBox(height: 20),
-        if (_error != null)
-          Text(_error!, style: TextStyle(color: Platform.isIOS ? CupertinoColors.systemRed : Colors.red)),
-        const SizedBox(height: 20),
-        _loading
-            ? (Platform.isIOS ? const CupertinoActivityIndicator() : const CircularProgressIndicator())
-            : (Platform.isIOS
-            ? CupertinoButton.filled(child: Text(loc.register), onPressed: _register)
-            : ElevatedButton(child: Text(loc.register), onPressed: _register)),
+        if (_loading)
+          Platform.isIOS
+              ? const CupertinoActivityIndicator()
+              : const CircularProgressIndicator()
+        else if (Platform.isIOS)
+          CupertinoButton.filled(
+            onPressed: _register,
+            child: Text(loc.register),
+          )
+        else
+          ElevatedButton(
+            onPressed: _register,
+            child: Text(loc.register),
+          ),
       ],
     );
   }
@@ -127,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: _buildForm(context, loc),
+            child: _buildForm(loc),
           ),
         ),
       );
@@ -137,7 +180,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(title: Text(loc.register)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: _buildForm(context, loc),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: _buildForm(loc),
+          ),
+        ),
       ),
     );
   }

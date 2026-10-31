@@ -1,10 +1,12 @@
 import 'dart:io' show Platform;
+
+import 'package:address_manager/l10n/app_localizations.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:address_manager/l10n/app_localizations.dart';
+
+import 'login_screen.dart';
 import 'main_navigation.dart';
-import 'login_screen.dart'; // если у тебя есть отдельный экран входа
 
 class SplashScreen extends StatelessWidget {
   final void Function(Locale) onLocaleChanged;
@@ -20,63 +22,63 @@ class SplashScreen extends StatelessWidget {
     required this.currentLocale,
   });
 
+  MainNavigation _mainNavigation() => MainNavigation(
+        onLocaleChanged: onLocaleChanged,
+        onDarkModeChanged: onDarkModeChanged,
+        isDarkMode: isDarkMode,
+        currentLocale: currentLocale,
+      );
+
+  void _openLogin(BuildContext context) {
+    final page = LoginScreen(
+      onLocaleChanged: onLocaleChanged,
+      onDarkModeChanged: onDarkModeChanged,
+      isDarkMode: isDarkMode,
+      currentLocale: currentLocale,
+    );
+
+    Navigator.push(
+      context,
+      Platform.isIOS
+          ? CupertinoPageRoute(builder: (_) => page)
+          : MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final user = FirebaseAuth.instance.currentUser;
 
-    // ✅ Если пользователь уже авторизован → сразу в MainNavigation
-    if (user != null) {
-      return MainNavigation();
+    if (FirebaseAuth.instance.currentUser != null) {
+      return _mainNavigation();
     }
 
-    // ✅ Если не авторизован → показываем приветствие и кнопку входа
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (Platform.isIOS)
+          CupertinoButton.filled(
+            onPressed: () => _openLogin(context),
+            child: Text(loc.login),
+          )
+        else
+          ElevatedButton(
+            onPressed: () => _openLogin(context),
+            child: Text(loc.login),
+          ),
+      ],
+    );
+
     if (Platform.isIOS) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(middle: Text(loc.welcomeMessage)),
-        child: SafeArea(
-          child: Center(
-            child: CupertinoButton.filled(
-              child: Text(loc.login),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (_) => LoginScreen(
-                      onLocaleChanged: onLocaleChanged,
-                      onDarkModeChanged: onDarkModeChanged,
-                      isDarkMode: isDarkMode,
-                      currentLocale: currentLocale,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
+        child: SafeArea(child: Center(child: content)),
       );
     }
 
     return Scaffold(
       appBar: AppBar(title: Text(loc.welcomeMessage)),
-      body: Center(
-        child: ElevatedButton(
-          child: Text(loc.login),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => LoginScreen(
-                  onLocaleChanged: onLocaleChanged,
-                  onDarkModeChanged: onDarkModeChanged,
-                  isDarkMode: isDarkMode,
-                  currentLocale: currentLocale,
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+      body: Center(child: content),
     );
   }
 }

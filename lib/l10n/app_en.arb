@@ -76,5 +76,15 @@
   "forgotPassword": "Forgot password",
   "resetPasswordButton": "Reset password",
   "resetPasswordEmailSent": "Password reset email sent",
-  "password": "Password"
+  "password": "Password",
+  "profileUpdated": "Profile successfully updated!",
+  "errorEmptyFields": "Name and Email cannot be empty!",
+  "emailNotVerified": "Your Email is not verified. We sent a new verification link. Please check your inbox!",
+  "newNote": "New Note",
+  "addNote": "Add Note",
+  "notes": "Notes",
+  "noNotes": "No notes found",
+  "selectNotesForSharing": "Select address (optional)",
+  "category": "Category",
+  "title": "Title"
 }

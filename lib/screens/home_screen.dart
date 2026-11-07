@@ -5,7 +5,7 @@ import 'package:address_manager/l10n/app_localizations.dart';
 import 'user_profile_screen.dart';
 import 'settings_screen.dart';
 import 'address_list_screen.dart';
-import 'add_address_screen.dart';
+import 'add_address_screen.dart'; // Проверь, что этот файл содержит класс AddressFormScreen
 import 'notes_screen.dart';
 import 'add_note_screen.dart';
 
@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
       {
         'label': loc.profile,
         'icon': Icons.person,
-        'builder': () => UserProfileScreen()
+        'builder': () => const UserProfileScreen()
       },
       {
         'label': loc.settings,
@@ -46,12 +46,12 @@ class HomeScreen extends StatelessWidget {
       {
         'label': loc.addresses,
         'icon': Icons.home,
-        'builder': () => AddressListScreen()
+        'builder': () => const AddressListScreen()
       },
       {
         'label': loc.addAddress,
         'icon': Icons.add_home,
-        'builder': () => AddAddressScreen()
+        'builder': () => const AddressFormScreen()
       },
       {
         'label': loc.notes,
@@ -80,7 +80,7 @@ class HomeScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
           ),
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -88,7 +88,11 @@ class HomeScreen extends StatelessWidget {
             children: [
               Icon(item['icon'] as IconData, size: 40, color: Colors.blue),
               const SizedBox(height: 12),
-              Text(item['label'] as String, style: const TextStyle(fontSize: 16)),
+              Text(
+                item['label'] as String,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         ),
@@ -96,7 +100,14 @@ class HomeScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Adresownik')),
+      appBar: AppBar(
+        title: const Text(
+          'Adresownik',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
       backgroundColor: const Color(0xFFEAF4FF),
       body: Padding(
         padding: const EdgeInsets.all(16),

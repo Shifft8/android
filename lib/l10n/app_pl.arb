@@ -76,5 +76,15 @@
   "forgotPassword": "Odzyskaj hasło",
   "resetPasswordButton": "Zresetuj hasło",
   "resetPasswordEmailSent": "E-mail do resetowania hasła został wysłany",
-  "password": "Hasło"
+  "password": "Hasło",
+  "profileUpdated": "Profil został pomyślnie zaktualizowany!",
+  "errorEmptyFields": "Imię i e-mail nie mogą być puste!",
+  "emailNotVerified": "Twój e-mail nie jest zweryfikowany. Wyłaliśmy nowy link weryfikacyjny. Sprawdź swoją skrzynkę odbiorczą!",
+  "newNote": "Nowa notatka",
+  "addNote": "Dodaj notatkę",
+  "notes": "Notatki",
+  "noNotes": "Brak notatek",
+  "selectNotesForSharing": "Wybierz adres (opcjonalnie)",
+  "category": "Kategoria",
+  "title": "Tytuł"
 }

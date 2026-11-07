@@ -76,7 +76,17 @@
   "forgotPassword": "Восстановить пароль",
   "resetPasswordButton": "Сбросить пароль",
   "resetPasswordEmailSent": "Письмо для сброса пароля отправлено",
-  "password": "Пароль"
+  "password": "Пароль",
+  "profileUpdated": "Профиль успешно обновлен!",
+  "errorEmptyFields": "Имя и Email не могут быть пустыми!",
+  "emailNotVerified": "Ваш Email не подтвержден. Мы отправили новое письмо со ссылкой. Проверьте почту перед входом!",
+  "newNote": "Новая заметка",
+  "addNote": "Добавить заметку",
+  "notes": "Заметки",
+  "noNotes": "Заметок не найдено",
+  "selectNotesForSharing": "Выбрать адрес (опционально)",
+  "category": "Категория",
+  "title": "Название"
 }
 
 

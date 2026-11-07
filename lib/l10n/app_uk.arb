@@ -76,5 +76,15 @@
   "forgotPassword": "Відновити пароль",
   "resetPasswordButton": "Скинути пароль",
   "resetPasswordEmailSent": "Лист для скидання пароля надіслано",
-  "password": "Пароль"
+  "password": "Пароль",
+  "profileUpdated": "Профіль успішно оновлено!",
+  "errorEmptyFields": "Ім'я та Email не можуть бути порожніми!",
+  "emailNotVerified": "Ваш Email не підтверджено. Ми надіслали новий лист із посиланням. Перевірте пошту перед входом!",
+  "newNote": "Нова нотатка",
+  "addNote": "Додати нотатку",
+  "notes": "Нотатки",
+  "noNotes": "Немає нотаток",
+  "selectNotesForSharing": "Виберіть адресу (опціонально)",
+  "category": "Категорія",
+  "title": "Назва"
 }

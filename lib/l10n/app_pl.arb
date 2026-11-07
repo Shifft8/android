@@ -92,5 +92,15 @@
   "resetNetworkError": "Brak połączenia. Sprawdź sieć i spróbuj ponownie.",
   "resetTooManyRequests": "Zbyt wiele żądań. Poczekaj i spróbuj ponownie.",
   "resetRequestError": "Nie udało się wysłać żądania. Spróbuj później.",
-  "backToLogin": "Powrót do logowania"
+  "backToLogin": "Powrót do logowania",
+  "profileLoadError": "Nie udało się wczytać profilu. Spróbuj ponownie.",
+  "profileSaveError": "Nie udało się zapisać profilu. Zmiany pozostały w formularzu.",
+  "profilePermissionDenied": "Brak uprawnień dostępu do profilu.",
+  "profileNetworkError": "Brak połączenia. Sprawdź sieć i spróbuj ponownie.",
+  "profileChanged": "Profil zmienił się lub został usunięty. Anuluj i wczytaj go ponownie.",
+  "profileRetry": "Spróbuj ponownie",
+  "profileMissing": "Profil nie został jeszcze utworzony. Uzupełnij dane.",
+  "profileCreate": "Uzupełnij profil",
+  "profileName": "Imię",
+  "profileNameRequired": "Wpisz imię."
 }

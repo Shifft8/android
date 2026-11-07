@@ -271,4 +271,34 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get backToLogin => 'Повернутися до входу';
+
+  @override
+  String get profileLoadError => 'Не вдалося завантажити профіль. Спробуйте знову.';
+
+  @override
+  String get profileSaveError => 'Не вдалося зберегти профіль. Введені дані залишились у формі.';
+
+  @override
+  String get profilePermissionDenied => 'Немає дозволу на доступ до профілю.';
+
+  @override
+  String get profileNetworkError => 'Немає з’єднання. Перевірте мережу та спробуйте знову.';
+
+  @override
+  String get profileChanged => 'Профіль змінився або видалений. Скасуйте редагування та завантажте його знову.';
+
+  @override
+  String get profileRetry => 'Спробувати знову';
+
+  @override
+  String get profileMissing => 'Профіль ще не створений. Заповніть його дані.';
+
+  @override
+  String get profileCreate => 'Заповнити профіль';
+
+  @override
+  String get profileName => 'Ім’я';
+
+  @override
+  String get profileNameRequired => 'Введіть ім’я.';
 }

@@ -271,4 +271,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get backToLogin => 'Вернуться ко входу';
+
+  @override
+  String get profileLoadError => 'Не удалось загрузить профиль. Повторите попытку.';
+
+  @override
+  String get profileSaveError => 'Не удалось сохранить профиль. Введённые данные остались в форме.';
+
+  @override
+  String get profilePermissionDenied => 'Нет разрешения на доступ к профилю.';
+
+  @override
+  String get profileNetworkError => 'Нет соединения. Проверьте сеть и повторите попытку.';
+
+  @override
+  String get profileChanged => 'Профиль изменился или удалён. Отмените редактирование и загрузите его снова.';
+
+  @override
+  String get profileRetry => 'Повторить попытку';
+
+  @override
+  String get profileMissing => 'Профиль ещё не создан. Заполните его данные.';
+
+  @override
+  String get profileCreate => 'Заполнить профиль';
+
+  @override
+  String get profileName => 'Имя';
+
+  @override
+  String get profileNameRequired => 'Введите имя.';
 }

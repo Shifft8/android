@@ -92,5 +92,15 @@
   "resetNetworkError": "Connection failed. Check your network and try again.",
   "resetTooManyRequests": "Too many requests. Please wait and try again.",
   "resetRequestError": "Unable to send the request. Please try again later.",
-  "backToLogin": "Back to sign in"
+  "backToLogin": "Back to sign in",
+  "profileLoadError": "Unable to load your profile. Try again.",
+  "profileSaveError": "Unable to save your profile. Your changes are still in the form.",
+  "profilePermissionDenied": "Access to this profile was denied.",
+  "profileNetworkError": "Connection failed. Check your network and try again.",
+  "profileChanged": "The profile changed or was removed. Cancel and reload it before saving.",
+  "profileRetry": "Try again",
+  "profileMissing": "Your profile has not been created yet. Fill it in to continue.",
+  "profileCreate": "Complete profile",
+  "profileName": "Name",
+  "profileNameRequired": "Enter your name."
 }

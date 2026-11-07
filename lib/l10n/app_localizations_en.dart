@@ -271,4 +271,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backToLogin => 'Back to sign in';
+
+  @override
+  String get profileLoadError => 'Unable to load your profile. Try again.';
+
+  @override
+  String get profileSaveError => 'Unable to save your profile. Your changes are still in the form.';
+
+  @override
+  String get profilePermissionDenied => 'Access to this profile was denied.';
+
+  @override
+  String get profileNetworkError => 'Connection failed. Check your network and try again.';
+
+  @override
+  String get profileChanged => 'The profile changed or was removed. Cancel and reload it before saving.';
+
+  @override
+  String get profileRetry => 'Try again';
+
+  @override
+  String get profileMissing => 'Your profile has not been created yet. Fill it in to continue.';
+
+  @override
+  String get profileCreate => 'Complete profile';
+
+  @override
+  String get profileName => 'Name';
+
+  @override
+  String get profileNameRequired => 'Enter your name.';
 }

@@ -626,6 +626,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to sign in'**
   String get backToLogin;
+
+  /// No description provided for @profileLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load your profile. Try again.'**
+  String get profileLoadError;
+
+  /// No description provided for @profileSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to save your profile. Your changes are still in the form.'**
+  String get profileSaveError;
+
+  /// No description provided for @profilePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Access to this profile was denied.'**
+  String get profilePermissionDenied;
+
+  /// No description provided for @profileNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed. Check your network and try again.'**
+  String get profileNetworkError;
+
+  /// No description provided for @profileChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The profile changed or was removed. Cancel and reload it before saving.'**
+  String get profileChanged;
+
+  /// No description provided for @profileRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get profileRetry;
+
+  /// No description provided for @profileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile has not been created yet. Fill it in to continue.'**
+  String get profileMissing;
+
+  /// No description provided for @profileCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete profile'**
+  String get profileCreate;
+
+  /// No description provided for @profileName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get profileName;
+
+  /// No description provided for @profileNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name.'**
+  String get profileNameRequired;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

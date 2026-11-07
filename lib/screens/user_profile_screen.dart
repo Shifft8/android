@@ -1,28 +1,156 @@
-import 'dart:io' show Platform;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:address_manager/l10n/app_localizations.dart';
-import 'edit_profile_screen.dart';
+
 
 
 class UserProfileScreen extends StatefulWidget {
-  const UserProfileScreen({super.key});
+  final FirebaseAuth? auth;
+  final FirebaseFirestore? firestore;
+  const UserProfileScreen({super.key, this.auth, this.firestore});
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
 }
 
-class _UserProfileScreenState extends State<UserProfileScreen> {
-  final User? _currentUser = FirebaseAuth.instance.currentUser;
+class _ProfileEditor extends StatefulWidget {
+  final Map<String, String> initialFields;
+  final String email;
+  final bool creating;
+  final Future<void> Function(Map<String, String>) onSave;
 
+  const _ProfileEditor({required this.initialFields, required this.email,
+    required this.creating, required this.onSave});
+
+  @override
+  State<_ProfileEditor> createState() => _ProfileEditorState();
+}
+
+class _ProfileEditorState extends State<_ProfileEditor> {
+  final _formKey = GlobalKey<FormState>();
+  late final Map<String, TextEditingController> _controllers;
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = widget.initialFields.map((key, value) =>
+      MapEntry(key, TextEditingController(text: value)));
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
+    final loc = AppLocalizations.of(context)!;
+    final fields = _controllers.map((key, controller) => MapEntry(key, controller.text.trim()));
+    setState(() { _saving = true; _error = null; });
+    try {
+      await widget.onSave(fields);
+      if (!mounted) return;
+      // Let PopScope rebuild before returning the confirmed save result.
+      setState(() => _saving = false);
+      await WidgetsBinding.instance.endOfFrame;
+      if (mounted) Navigator.pop(context, true);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = _profileError(context, error, loc.profileSaveError);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    Widget field(String key, String label, IconData icon) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: _controllers[key],
+        enabled: !_saving,
+        keyboardType: key == 'phone' ? TextInputType.phone : TextInputType.text,
+        validator: key == 'name' ? (value) => value == null || value.trim().isEmpty
+            ? loc.profileNameRequired : null : null,
+        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder(),
+          prefixIcon: Icon(icon)),
+      ),
+    );
+    return PopScope(
+      canPop: !_saving,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, 20, 16, MediaQuery.of(context).viewInsets.bottom + 20),
+        child: SingleChildScrollView(child: Form(
+          key: _formKey,
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(widget.creating ? loc.profileCreate : loc.editProfile,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+              const SizedBox(height: 20),
+              field('name', loc.profileName, Icons.person),
+              TextFormField(initialValue: widget.email, readOnly: true,
+                decoration: InputDecoration(labelText: loc.email,
+                  border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.email))),
+              const SizedBox(height: 12),
+              field('phone', loc.phone, Icons.phone),
+              field('city', loc.city, Icons.location_city),
+              field('country', loc.country, Icons.flag),
+              if (_error != null) Semantics(liveRegion: true,
+                child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _saving ? null : _save,
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                child: _saving ? const SizedBox(width: 20, height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text(loc.save, style: const TextStyle(color: Colors.white, fontSize: 16)),
+              ),
+              TextButton(onPressed: _saving ? null : () => Navigator.pop(context), child: Text(loc.cancel)),
+            ],
+          ),
+        )),
+      ),
+    );
+  }
+}
+
+enum _ProfileStatus { loading, ready, missing, error, noAuth }
+
+String _profileError(BuildContext context, Object error, String fallback) {
+  final loc = AppLocalizations.of(context)!;
+  if (error is FirebaseException) {
+    if (error.code == 'permission-denied') return loc.profilePermissionDenied;
+    if (error.code == 'unavailable' || error.code == 'network-request-failed') {
+      return loc.profileNetworkError;
+    }
+    if (error.code == 'not-found' || error.code == 'already-exists') {
+      return loc.profileChanged;
+    }
+  }
+  return fallback;
+}
+
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  FirebaseAuth get _auth => widget.auth ?? FirebaseAuth.instance;
+  FirebaseFirestore get _firestore => widget.firestore ?? FirebaseFirestore.instance;
+  String? _loadedUid;
+  _ProfileStatus _status = _ProfileStatus.loading;
+  Object? _loadError;
+  bool _saved = false;
   String _userName = '';
-  String _userEmail = '';
   String _userPhone = '';
-  String _userCountry = 'Poland';
+  String _userCountry = '';
   String _userCity = '';
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -31,85 +159,73 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> _loadUserProfile() async {
-    final user = _currentUser;
-    if (user == null) return;
-
+    final user = _auth.currentUser;
     setState(() {
-      _userEmail = user.email ?? '';
-      _userName = user.displayName ?? 'Новый пользователь';
+      _status = user == null ? _ProfileStatus.noAuth : _ProfileStatus.loading;
+      _loadedUid = null;
+      _loadError = null;
+      _saved = false;
     });
-
+    if (user == null) return;
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      if (doc.exists && mounted) {
-        final data = doc.data() as Map<String, dynamic>;
-        setState(() {
-          _userName = data['name'] ?? _userName;
-          _userPhone = data['phone'] ?? '';
-          _userCity = data['city'] ?? '';
-          _userCountry = data['country'] ?? 'Poland';
-          _userEmail = data['email'] ?? _userEmail;
-        });
+      // Never treat an offline cache miss as a missing server profile.
+      final doc = await _firestore.collection('users').doc(user.uid)
+          .get(const GetOptions(source: Source.server));
+      if (!mounted) return;
+      if (_auth.currentUser?.uid != user.uid) {
+        setState(() => _status = _ProfileStatus.noAuth);
+        return;
       }
-    } catch (e) {
-      print("Ошибка загрузки профиля: $e");
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      final data = doc.data();
+      setState(() {
+        _userName = data?['name'] as String? ?? user.displayName ?? '';
+        _userPhone = data?['phone'] as String? ?? '';
+        _userCity = data?['city'] as String? ?? '';
+        _userCountry = data?['country'] as String? ?? '';
+        _loadedUid = user.uid;
+        _status = doc.exists ? _ProfileStatus.ready : _ProfileStatus.missing;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() { _status = _ProfileStatus.error; _loadError = error; });
     }
   }
 
-  // Обновленный метод сохранения всех полей
-  Future<void> _saveProfileToFirestore(String name, String phone, String city,
-      String country, String email) async {
-    final user = _currentUser;
-    if (user == null) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      // 1. Если пользователь поменял email, обновляем его в Firebase Auth
-      if (email != user.email && email.isNotEmpty) {
-        await user.updateEmail(email);
-      }
-
-      // 2. Обновляем имя в профиле Auth
-      await user.updateDisplayName(name);
-
-      // 3. Сохраняем расширенные данные в Firestore
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'name': name,
-        'phone': phone,
-        'city': city,
-        'country': country,
-        'email': email,
-      }, SetOptions(merge: true));
-
-      setState(() {
-        _userName = name;
-        _userPhone = phone;
-        _userCity = city;
-        _userCountry = country;
-        _userEmail = email;
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка при обновлении: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+  Future<void> _saveProfile(Map<String, String> fields) async {
+    final user = _auth.currentUser;
+    if (user == null || user.uid != _loadedUid ||
+        (_status != _ProfileStatus.ready && _status != _ProfileStatus.missing)) {
+      throw FirebaseAuthException(code: 'no-current-user');
     }
+    final ref = _firestore.collection('users').doc(user.uid);
+    final creating = _status == _ProfileStatus.missing;
+    // Transactions fail offline rather than leaving a queued write and a locked form.
+    await _firestore.runTransaction<void>((transaction) async {
+      final existing = await transaction.get(ref);
+      if (creating) {
+        if (existing.exists) {
+          throw FirebaseException(plugin: 'cloud_firestore', code: 'already-exists');
+        }
+        transaction.set(ref, {
+          ...fields,
+          'email': user.email ?? '',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } else {
+        if (!existing.exists) {
+          throw FirebaseException(plugin: 'cloud_firestore', code: 'not-found');
+        }
+        transaction.update(ref, fields);
+      }
+    });
+    if (!mounted) return;
+    setState(() {
+      _userName = fields['name']!;
+      _userPhone = fields['phone']!;
+      _userCity = fields['city']!;
+      _userCountry = fields['country']!;
+      _status = _ProfileStatus.ready;
+    });
   }
 
   bool _loggingOut = false;
@@ -132,7 +248,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         ),
       );
       if (!mounted || confirmed != true) return;
-      await FirebaseAuth.instance.signOut();
+      await _auth.signOut();
       // RootScreen replaces the navigator and removes all user routes.
     } catch (error) {
       if (!mounted) return;
@@ -143,143 +259,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       _loggingOut = false;
     }
   }
-  // Обновленное окно редактирования со всеми полями
-  void _showEditProfileSheet() {
-    final nameController = TextEditingController(text: _userName);
-    final phoneController = TextEditingController(text: _userPhone);
-    final cityController = TextEditingController(text: _userCity);
-    final countryController = TextEditingController(text: _userCountry);
-    final emailController = TextEditingController(text: _userEmail);
-
-    showModalBottomSheet(
+  Future<void> _showEditProfileSheet() async {
+    if (_status != _ProfileStatus.ready && _status != _ProfileStatus.missing) return;
+    final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
-        final localizations = AppLocalizations.of(context)!;
-
-        return Padding(
-          padding: EdgeInsets.only(
-            top: 20,
-            left: 16,
-            right: 16,
-            bottom: MediaQuery
-                .of(context)
-                .viewInsets
-                .bottom + 20,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  localizations.editProfile,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: localizations.firstName,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.person),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: localizations.email,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.email),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: localizations.phone,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.phone),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: cityController,
-                  decoration: InputDecoration(
-                    labelText: localizations.city,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.location_city),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: countryController,
-                  decoration: InputDecoration(
-                    labelText: localizations.country,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.flag),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (nameController.text
-                        .trim()
-                        .isNotEmpty &&
-                        emailController.text
-                            .trim()
-                            .isNotEmpty) {
-                      await _saveProfileToFirestore(
-                        nameController.text.trim(),
-                        phoneController.text.trim(),
-                        cityController.text.trim(),
-                        countryController.text.trim(),
-                        emailController.text.trim(),
-                      );
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            // Используем 'added', который точно есть в твоем ARB
-                            content: Text(localizations.added),
-                          ),
-                        );
-                      }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          // Используем 'error', который точно есть в твоем ARB
-                          content: Text(localizations.error),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    localizations.save,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (_) => _ProfileEditor(
+        initialFields: {
+          'name': _userName, 'phone': _userPhone,
+          'city': _userCity, 'country': _userCountry,
+        },
+        email: _auth.currentUser?.email ?? '',
+        creating: _status == _ProfileStatus.missing,
+        onSave: _saveProfile,
+      ),
     );
+    if (mounted && saved == true) setState(() => _saved = true);
   }
 
   @override
@@ -287,15 +287,42 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     // Получаем экземпляр локализации в самом начале сборки экрана
     final localizations = AppLocalizations.of(context)!;
 
-    if (_isLoading) {
+    if (_status == _ProfileStatus.loading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_status == _ProfileStatus.error || _status == _ProfileStatus.noAuth ||
+        _status == _ProfileStatus.missing) {
+      return Scaffold(
+        appBar: AppBar(title: Text(localizations.profile)),
+        body: Center(child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(_auth.currentUser?.email ?? ''),
+            const SizedBox(height: 16),
+            Text(_status == _ProfileStatus.noAuth ? localizations.errorNoAuth
+                : _status == _ProfileStatus.missing ? localizations.profileMissing
+                : _profileError(context, _loadError!, localizations.profileLoadError),
+                textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            if (_status == _ProfileStatus.error || _status == _ProfileStatus.missing)
+              ElevatedButton(onPressed: _loadUserProfile, child: Text(localizations.profileRetry)),
+            if (_status == _ProfileStatus.missing)
+              ElevatedButton(onPressed: _showEditProfileSheet, child: Text(localizations.profileCreate)),
+            if (_status != _ProfileStatus.noAuth)
+              TextButton(onPressed: _logout, child: Text(localizations.logoutButton)),
+          ]),
+        )),
       );
     }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        actions: [IconButton(onPressed: _loadUserProfile,
+          tooltip: localizations.profileRetry, icon: const Icon(Icons.refresh))],
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
@@ -308,6 +335,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           children: [
+            if (_saved) Text(localizations.profileUpdated),
             const SizedBox(height: 20),
 
             Center(
@@ -329,7 +357,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
                   ),
                   Text(
-                    _userEmail,
+                    _auth.currentUser?.email ?? '',
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],

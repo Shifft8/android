@@ -271,4 +271,34 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get backToLogin => 'Powrót do logowania';
+
+  @override
+  String get profileLoadError => 'Nie udało się wczytać profilu. Spróbuj ponownie.';
+
+  @override
+  String get profileSaveError => 'Nie udało się zapisać profilu. Zmiany pozostały w formularzu.';
+
+  @override
+  String get profilePermissionDenied => 'Brak uprawnień dostępu do profilu.';
+
+  @override
+  String get profileNetworkError => 'Brak połączenia. Sprawdź sieć i spróbuj ponownie.';
+
+  @override
+  String get profileChanged => 'Profil zmienił się lub został usunięty. Anuluj i wczytaj go ponownie.';
+
+  @override
+  String get profileRetry => 'Spróbuj ponownie';
+
+  @override
+  String get profileMissing => 'Profil nie został jeszcze utworzony. Uzupełnij dane.';
+
+  @override
+  String get profileCreate => 'Uzupełnij profil';
+
+  @override
+  String get profileName => 'Imię';
+
+  @override
+  String get profileNameRequired => 'Wpisz imię.';
 }

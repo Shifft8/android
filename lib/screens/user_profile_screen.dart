@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:address_manager/l10n/app_localizations.dart';
 import 'edit_profile_screen.dart';
-import 'login_screen.dart';
+
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -112,63 +112,37 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  void _logout() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final localizations = AppLocalizations.of(context)!;
+  bool _loggingOut = false;
 
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(localizations.logoutButton),
-          content: Text(localizations.confirmDelete),
+  Future<void> _logout() async {
+    if (_loggingOut) return;
+    _loggingOut = true;
+    final loc = AppLocalizations.of(context)!;
+    try {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(loc.logoutButton),
+          content: Text(loc.logoutButton),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                localizations.cancel,
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await FirebaseAuth.instance.signOut();
-
-                if (context.mounted) {
-                  final currentLocale = Localizations.localeOf(context);
-
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          LoginScreen(
-                            onLocaleChanged: (locale) {},
-                            onDarkModeChanged: (isDark) {},
-                            isDarkMode: false,
-                            currentLocale: currentLocale,
-                          ),
-                    ),
-                        (Route<dynamic> route) => false,
-                  );
-                }
-              },
-              child: Text(
-                localizations.logoutButton,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(loc.cancel)),
+            TextButton(onPressed: () => Navigator.pop(dialogContext, true), child: Text(loc.logoutButton)),
           ],
-        );
-      },
-    );
+        ),
+      );
+      if (!mounted || confirmed != true) return;
+      await FirebaseAuth.instance.signOut();
+      // RootScreen replaces the navigator and removes all user routes.
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${loc.error}: $error')),
+      );
+    } finally {
+      _loggingOut = false;
+    }
   }
-
-
   // Обновленное окно редактирования со всеми полями
   void _showEditProfileSheet() {
     final nameController = TextEditingController(text: _userName);

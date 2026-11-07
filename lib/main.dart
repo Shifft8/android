@@ -8,8 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/main_navigation.dart';
-import 'screens/splash_screen.dart';
-import 'screens/welcome_screen.dart'; // ✅ Импорт экрана приветствия
+import 'screens/email_verification_screen.dart';
 import 'screens/login_screen.dart';   // ✅ Импорт твоего экрана авторизации
 
 Future<void> main() async {
@@ -28,6 +27,9 @@ class AddressManagerApp extends StatefulWidget {
 }
 
 class _AddressManagerAppState extends State<AddressManagerApp> {
+  late final Stream<User?> _users = FirebaseAuth.instance.userChanges();
+  bool _authBusy = false;
+  String? _authError;
   Locale? _locale;
   bool _darkMode = false;
 
@@ -37,6 +39,17 @@ class _AddressManagerAppState extends State<AddressManagerApp> {
 
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: _users,
+      builder: (context, snapshot) => _buildApp(
+        context,
+        _authBusy ? null : snapshot.data,
+        snapshot.connectionState == ConnectionState.waiting,
+      ),
+    );
+  }
+
+  Widget _buildApp(BuildContext context, User? user, bool waiting) {
     // Общие делегаты локализации для iOS и Android
     const delegates = [
       AppLocalizations.delegate,
@@ -57,6 +70,7 @@ class _AddressManagerAppState extends State<AddressManagerApp> {
 
     if (Platform.isIOS) {
       return CupertinoApp(
+        key: ValueKey('${user?.uid}:${user?.emailVerified}'),
         debugShowCheckedModeBanner: false,
         locale: currentAppLocale,
         theme: CupertinoThemeData(
@@ -72,7 +86,12 @@ class _AddressManagerAppState extends State<AddressManagerApp> {
           }
           return const Locale('en');
         },
-        home: SplashScreen(
+        home: RootScreen(
+          user: user,
+          waiting: waiting,
+          onAuthBusyChanged: (busy) => setState(() => _authBusy = busy),
+          onAuthError: (error) => _authError = error,
+          authError: _authError,
           onLocaleChanged: setLocale,
           onDarkModeChanged: setDarkMode,
           isDarkMode: _darkMode,
@@ -81,6 +100,10 @@ class _AddressManagerAppState extends State<AddressManagerApp> {
       );
     } else {
       return MaterialApp(
+        key: ValueKey('${user?.uid}:${user?.emailVerified}'),
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        themeMode: _darkMode ? ThemeMode.dark : ThemeMode.light,
         debugShowCheckedModeBanner: false,
         locale: currentAppLocale,
         supportedLocales: locales,
@@ -92,7 +115,12 @@ class _AddressManagerAppState extends State<AddressManagerApp> {
           }
           return const Locale('en');
         },
-        home: SplashScreen(
+        home: RootScreen(
+          user: user,
+          waiting: waiting,
+          onAuthBusyChanged: (busy) => setState(() => _authBusy = busy),
+          onAuthError: (error) => _authError = error,
+          authError: _authError,
           onLocaleChanged: setLocale,
           onDarkModeChanged: setDarkMode,
           isDarkMode: _darkMode,
@@ -103,15 +131,25 @@ class _AddressManagerAppState extends State<AddressManagerApp> {
   }
 }
 
-// Промежуточный экран-роутер для распределения потоков авторизации Firebase
+// Auth changes replace the app navigator, including all protected routes.
 class RootScreen extends StatelessWidget {
-  final void Function(Locale) onLocaleChanged;
-  final void Function(bool) onDarkModeChanged;
+  final String? authError;
+  final ValueChanged<String?> onAuthError;
+  final User? user;
+  final bool waiting;
+  final ValueChanged<bool> onAuthBusyChanged;
+  final ValueChanged<Locale> onLocaleChanged;
+  final ValueChanged<bool> onDarkModeChanged;
   final bool isDarkMode;
   final Locale currentLocale;
 
   const RootScreen({
     super.key,
+    this.authError,
+    required this.onAuthError,
+    required this.user,
+    required this.waiting,
+    required this.onAuthBusyChanged,
     required this.onLocaleChanged,
     required this.onDarkModeChanged,
     required this.isDarkMode,
@@ -120,43 +158,28 @@ class RootScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        // Если пользователь уже авторизован в Firebase — сразу пускаем в главное меню приложения
-        if (snapshot.hasData && snapshot.data != null) {
-          return MainNavigation(
-            onLocaleChanged: onLocaleChanged,
-            onDarkModeChanged: onDarkModeChanged,
-            isDarkMode: isDarkMode,
-            currentLocale: currentLocale,
-          );
-        }
-
-        // Если НЕ авторизован — показываем WelcomeScreen с красивой анимацией
-        return WelcomeScreen(
-          onLoginPressed: () {
-            // При нажатии на кнопку «Вхід» плавно переходим на твой LoginScreen
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginScreen(
-                  onLocaleChanged: onLocaleChanged,
-                  onDarkModeChanged: onDarkModeChanged,
-                  isDarkMode: isDarkMode,
-                  currentLocale: currentLocale,
-                ),
-              ),
-            );
-          },
-        );
-      },
+    if (waiting) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final currentUser = user;
+    if (currentUser == null) {
+      return LoginScreen(
+        onAuthError: onAuthError,
+        onAuthBusyChanged: onAuthBusyChanged,
+        onLocaleChanged: onLocaleChanged,
+        onDarkModeChanged: onDarkModeChanged,
+        isDarkMode: isDarkMode,
+        currentLocale: currentLocale,
+      );
+    }
+    if (!currentUser.emailVerified) {
+      return EmailVerificationScreen(user: currentUser, initialMessage: authError);
+    }
+    return MainNavigation(
+      onLocaleChanged: onLocaleChanged,
+      onDarkModeChanged: onDarkModeChanged,
+      isDarkMode: isDarkMode,
+      currentLocale: currentLocale,
     );
   }
 }

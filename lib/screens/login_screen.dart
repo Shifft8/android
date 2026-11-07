@@ -1,12 +1,12 @@
-import 'dart:io' show Platform;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:address_manager/l10n/app_localizations.dart';
-import 'main_navigation.dart';
+import 'email_verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  final ValueChanged<bool>? onAuthBusyChanged;
+  final ValueChanged<String?>? onAuthError;
   final void Function(Locale) onLocaleChanged;
   final void Function(bool) onDarkModeChanged;
   final bool isDarkMode;
@@ -14,6 +14,8 @@ class LoginScreen extends StatefulWidget {
 
   const LoginScreen({
     super.key,
+    this.onAuthBusyChanged,
+    this.onAuthError,
     required this.onLocaleChanged,
     required this.onDarkModeChanged,
     required this.isDarkMode,
@@ -50,8 +52,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    if (_loading) return;
     final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
+    final password = _passwordController.text;
 
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
@@ -77,6 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
       _loading = true;
       _error = null;
     });
+    widget.onAuthBusyChanged?.call(true);
+    widget.onAuthError?.call(null);
 
     try {
       if (_isSignUp) {
@@ -89,7 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (user != null) {
           await user.updateDisplayName(name);
-          await user.sendEmailVerification();
 
           await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
             'name': name,
@@ -100,38 +104,21 @@ class _LoginScreenState extends State<LoginScreen> {
             'createdAt': FieldValue.serverTimestamp(),
           });
 
-          await Future.delayed(const Duration(seconds: 1));
-          await FirebaseAuth.instance.signOut();
+          await user.sendEmailVerification();
+          EmailVerificationScreen.recordEmailSent(user.uid);
         }
 
-        setState(() {
-          _error = "Аккаунт успешно создан! На вашу почту отправлено письмо. Пожалуйста, подтвердите её и войдите.";
-          _isSignUp = false;
-        });
         return;
       } else {
-        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
 
-        if (userCredential.user != null && !userCredential.user!.emailVerified) {
-          await userCredential.user!.sendEmailVerification();
-          await FirebaseAuth.instance.signOut();
-          setState(() {
-            _error = AppLocalizations.of(context)!.errorAuth;
-          });
-          return;
-        }
-
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const MainNavigation()),
-          );
-        }
       }
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      widget.onAuthError?.call(e.message ?? AppLocalizations.of(context)!.errorAuth);
       setState(() {
         if (e.code == 'user-not-found' || e.code == 'wrong-password') {
           _error = "Неверный email или пароль";
@@ -142,10 +129,13 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       });
     } catch (e) {
+      if (!mounted) return;
+      widget.onAuthError?.call('Не удалось завершить регистрацию: $e');
       setState(() => _error = "Что-то пошло не так: $e");
     } finally {
       if (mounted) {
         setState(() => _loading = false);
+        widget.onAuthBusyChanged?.call(false);
       }
     }
   }
@@ -309,7 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
 
               TextButton(
-                onPressed: () {
+                onPressed: _loading ? null : () {
                   setState(() {
                     _isSignUp = !_isSignUp;
                     _error = null;

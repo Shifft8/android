@@ -301,4 +301,61 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profileNameRequired => 'Введите имя.';
+
+  @override
+  String get changeEmailTitle => 'Сменить email';
+
+  @override
+  String get newEmail => 'Новый email';
+
+  @override
+  String get emailChangeSame => 'Введите адрес, отличный от текущего.';
+
+  @override
+  String get emailChangeSent => 'Запрос подтверждения отправлен. Текущий email изменится только после подтверждения ссылки в новом почтовом ящике.';
+
+  @override
+  String get emailChangeCheck => 'Я подтвердил новый email';
+
+  @override
+  String get emailChangePending => 'Новый email ещё не подтверждён. Проверьте почту и ссылку.';
+
+  @override
+  String get emailChangeSuccess => 'Email изменён, профиль синхронизирован.';
+
+  @override
+  String get emailSyncFailed => 'Email в Auth изменён, но профиль пока не удалось синхронизировать.';
+
+  @override
+  String get emailSyncRetry => 'Повторить синхронизацию профиля';
+
+  @override
+  String get emailChangeReauth => 'Введите текущий пароль для подтверждения личности.';
+
+  @override
+  String get emailChangeWrongPassword => 'Неверный текущий пароль. Попробуйте снова.';
+
+  @override
+  String get emailChangeProvider => 'Войдите заново через провайдера вашего аккаунта. Подтверждение паролем для него недоступно.';
+
+  @override
+  String get emailChangeSession => 'Сессия недействительна. Выйдите и войдите снова.';
+
+  @override
+  String get emailChangeGeneric => 'Не удалось выполнить запрос. Попробуйте снова.';
+
+  @override
+  String get emailChangeInUse => 'Этот email нельзя использовать. Выберите другой адрес.';
+
+  @override
+  String get emailChangeResend => 'Отправить подтверждение повторно';
+
+  @override
+  String get emailChangeSend => 'Отправить подтверждение';
+
+  @override
+  String get emailChangeExpired => 'Ссылка истекла или недействительна. Запросите новое письмо подтверждения.';
+
+  @override
+  String get emailSyncMissing => 'Email в Auth изменён. Заполните отсутствующий профиль, чтобы сохранить его копию.';
 }

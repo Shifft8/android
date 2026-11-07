@@ -686,6 +686,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter your name.'**
   String get profileNameRequired;
+
+  /// No description provided for @changeEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change email'**
+  String get changeEmailTitle;
+
+  /// No description provided for @newEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'New email'**
+  String get newEmail;
+
+  /// No description provided for @emailChangeSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an email different from your current address.'**
+  String get emailChangeSame;
+
+  /// No description provided for @emailChangeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation requested. Your current email stays unchanged until you confirm the link in the new inbox.'**
+  String get emailChangeSent;
+
+  /// No description provided for @emailChangeCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'I confirmed my new email'**
+  String get emailChangeCheck;
+
+  /// No description provided for @emailChangePending.
+  ///
+  /// In en, this message translates to:
+  /// **'The new email is not confirmed yet. Check your inbox and the link.'**
+  String get emailChangePending;
+
+  /// No description provided for @emailChangeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Email changed and profile synchronized.'**
+  String get emailChangeSuccess;
+
+  /// No description provided for @emailSyncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Auth email changed, but the profile could not be synchronized.'**
+  String get emailSyncFailed;
+
+  /// No description provided for @emailSyncRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry profile synchronization'**
+  String get emailSyncRetry;
+
+  /// No description provided for @emailChangeReauth.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password to confirm your identity.'**
+  String get emailChangeReauth;
+
+  /// No description provided for @emailChangeWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password is incorrect. Try again.'**
+  String get emailChangeWrongPassword;
+
+  /// No description provided for @emailChangeProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again using your account provider. Password reauthentication is not available for this account.'**
+  String get emailChangeProvider;
+
+  /// No description provided for @emailChangeSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session is no longer valid. Sign out and sign in again.'**
+  String get emailChangeSession;
+
+  /// No description provided for @emailChangeGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to complete the request. Please try again.'**
+  String get emailChangeGeneric;
+
+  /// No description provided for @emailChangeInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This email cannot be used. Choose another address.'**
+  String get emailChangeInUse;
+
+  /// No description provided for @emailChangeResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend confirmation'**
+  String get emailChangeResend;
+
+  /// No description provided for @emailChangeSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send confirmation'**
+  String get emailChangeSend;
+
+  /// No description provided for @emailChangeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The link is expired or invalid. Request a new confirmation email.'**
+  String get emailChangeExpired;
+
+  /// No description provided for @emailSyncMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Auth email changed. Complete your missing profile to save its copy.'**
+  String get emailSyncMissing;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

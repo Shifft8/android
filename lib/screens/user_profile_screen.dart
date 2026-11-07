@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:address_manager/l10n/app_localizations.dart';
+import '../services/email_change_service.dart';
+import 'change_email_screen.dart';
 
 
 
@@ -128,6 +130,12 @@ enum _ProfileStatus { loading, ready, missing, error, noAuth }
 
 String _profileError(BuildContext context, Object error, String fallback) {
   final loc = AppLocalizations.of(context)!;
+  if (error is FirebaseAuthException && const {
+    'user-mismatch', 'no-current-user', 'user-token-expired',
+    'invalid-user-token', 'user-not-found', 'user-disabled',
+  }.contains(error.code)) {
+    return loc.emailChangeSession;
+  }
   if (error is FirebaseException) {
     if (error.code == 'permission-denied') return loc.profilePermissionDenied;
     if (error.code == 'unavailable' || error.code == 'network-request-failed') {
@@ -146,6 +154,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   String? _loadedUid;
   _ProfileStatus _status = _ProfileStatus.loading;
   Object? _loadError;
+  Object? _emailSyncError;
+  bool _openingEmail = false;
   bool _saved = false;
   String _userName = '';
   String _userPhone = '';
@@ -164,13 +174,30 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       _status = user == null ? _ProfileStatus.noAuth : _ProfileStatus.loading;
       _loadedUid = null;
       _loadError = null;
+      _emailSyncError = null;
       _saved = false;
     });
     if (user == null) return;
     try {
+      final emailService = EmailChangeService(auth: _auth, firestore: _firestore, uid: user.uid);
+      final refreshed = await emailService.refresh();
+      if (!refreshed.emailVerified) {
+        if (mounted) setState(() => _status = _ProfileStatus.noAuth);
+        return;
+      }
       // Never treat an offline cache miss as a missing server profile.
       final doc = await _firestore.collection('users').doc(user.uid)
           .get(const GetOptions(source: Source.server));
+      Object? syncError;
+      if (doc.exists && refreshed.email != null && doc.data()?['email'] != refreshed.email) {
+        try {
+          await emailService.syncEmail(refreshed.email!);
+        } on FirebaseAuthException {
+          rethrow;
+        } catch (error) {
+          syncError = error;
+        }
+      }
       if (!mounted) return;
       if (_auth.currentUser?.uid != user.uid) {
         setState(() => _status = _ProfileStatus.noAuth);
@@ -178,6 +205,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       }
       final data = doc.data();
       setState(() {
+        _emailSyncError = syncError;
         _userName = data?['name'] as String? ?? user.displayName ?? '';
         _userPhone = data?['phone'] as String? ?? '';
         _userCity = data?['city'] as String? ?? '';
@@ -282,6 +310,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (mounted && saved == true) setState(() => _saved = true);
   }
 
+  Future<void> _showChangeEmail() async {
+    if (_openingEmail) return;
+    final user = _auth.currentUser;
+    if (user == null || user.uid != _loadedUid) return;
+    _openingEmail = true;
+    try {
+      await Navigator.push<void>(context, MaterialPageRoute(builder: (_) => ChangeEmailScreen(
+        service: EmailChangeService(auth: _auth, firestore: _firestore, uid: user.uid),
+      )));
+      if (mounted) await _loadUserProfile();
+    } finally {
+      _openingEmail = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Получаем экземпляр локализации в самом начале сборки экрана
@@ -336,6 +379,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         child: Column(
           children: [
             if (_saved) Text(localizations.profileUpdated),
+            if (_emailSyncError != null) ...[
+              Text('${localizations.emailSyncFailed} ${_profileError(context, _emailSyncError!, localizations.profileSaveError)}',
+                textAlign: TextAlign.center),
+              TextButton(onPressed: _loadUserProfile, child: Text(localizations.emailSyncRetry)),
+            ],
             const SizedBox(height: 20),
 
             Center(
@@ -421,6 +469,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
             const SizedBox(height: 16),
 
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: _showChangeEmail,
+                icon: const Icon(Icons.email_outlined),
+                label: Text(localizations.changeEmailTitle),
+              ),
+            ),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: TextButton.icon(

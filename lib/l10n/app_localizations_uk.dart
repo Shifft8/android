@@ -301,4 +301,61 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get profileNameRequired => 'Введіть ім’я.';
+
+  @override
+  String get changeEmailTitle => 'Змінити email';
+
+  @override
+  String get newEmail => 'Новий email';
+
+  @override
+  String get emailChangeSame => 'Введіть адресу, відмінну від поточної.';
+
+  @override
+  String get emailChangeSent => 'Запит підтвердження надіслано. Поточний email зміниться лише після підтвердження посилання в новій поштовій скриньці.';
+
+  @override
+  String get emailChangeCheck => 'Я підтвердив новий email';
+
+  @override
+  String get emailChangePending => 'Новий email ще не підтверджений. Перевірте пошту та посилання.';
+
+  @override
+  String get emailChangeSuccess => 'Email змінено, профіль синхронізовано.';
+
+  @override
+  String get emailSyncFailed => 'Email в Auth змінено, але профіль поки не вдалося синхронізувати.';
+
+  @override
+  String get emailSyncRetry => 'Повторити синхронізацію профілю';
+
+  @override
+  String get emailChangeReauth => 'Введіть поточний пароль для підтвердження особи.';
+
+  @override
+  String get emailChangeWrongPassword => 'Неправильний поточний пароль. Спробуйте знову.';
+
+  @override
+  String get emailChangeProvider => 'Увійдіть знову через провайдера вашого акаунта. Підтвердження паролем для нього недоступне.';
+
+  @override
+  String get emailChangeSession => 'Сесія недійсна. Вийдіть та увійдіть знову.';
+
+  @override
+  String get emailChangeGeneric => 'Не вдалося виконати запит. Спробуйте знову.';
+
+  @override
+  String get emailChangeInUse => 'Цей email не можна використати. Оберіть іншу адресу.';
+
+  @override
+  String get emailChangeResend => 'Надіслати підтвердження повторно';
+
+  @override
+  String get emailChangeSend => 'Надіслати підтвердження';
+
+  @override
+  String get emailChangeExpired => 'Посилання прострочене або недійсне. Запросіть новий лист підтвердження.';
+
+  @override
+  String get emailSyncMissing => 'Email в Auth змінено. Заповніть відсутній профіль, щоб зберегти його копію.';
 }

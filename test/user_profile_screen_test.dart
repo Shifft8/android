@@ -11,6 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 class _User extends Fake implements User {
   @override
+  bool get emailVerified => true;
+  @override
+  Future<void> reload() async {}
+  @override
+  Future<String?> getIdToken([bool forceRefresh = false]) async => 'test-only';
+  @override
   String get uid => 'profile-owner';
   @override
   String get email => 'auth@example.invalid';
@@ -110,7 +116,7 @@ class _Store extends Fake implements FirebaseFirestore {
 
 Map<String, dynamic> _existing() => {
   'name': 'Existing Name', 'phone': '123', 'city': 'Warsaw', 'country': 'Poland',
-  'email': 'legacy@example.invalid', 'createdAt': Timestamp(100, 0), 'unknown': 'keep',
+  'email': 'auth@example.invalid', 'createdAt': Timestamp(100, 0), 'unknown': 'keep',
 };
 
 Future<void> _open(WidgetTester tester, _Store store, { _Auth? auth, String language = 'en' }) async {

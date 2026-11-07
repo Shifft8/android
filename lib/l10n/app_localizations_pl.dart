@@ -301,4 +301,61 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get profileNameRequired => 'Wpisz imię.';
+
+  @override
+  String get changeEmailTitle => 'Zmień email';
+
+  @override
+  String get newEmail => 'Nowy email';
+
+  @override
+  String get emailChangeSame => 'Podaj adres inny niż obecny.';
+
+  @override
+  String get emailChangeSent => 'Wysłano prośbę o potwierdzenie. Obecny email zmieni się dopiero po potwierdzeniu linku w nowej skrzynce.';
+
+  @override
+  String get emailChangeCheck => 'Potwierdziłem nowy email';
+
+  @override
+  String get emailChangePending => 'Nowy email nie został jeszcze potwierdzony. Sprawdź pocztę i link.';
+
+  @override
+  String get emailChangeSuccess => 'Email zmieniony, profil zsynchronizowany.';
+
+  @override
+  String get emailSyncFailed => 'Email w Auth został zmieniony, ale nie udało się zsynchronizować profilu.';
+
+  @override
+  String get emailSyncRetry => 'Ponów synchronizację profilu';
+
+  @override
+  String get emailChangeReauth => 'Wpisz obecne hasło, aby potwierdzić tożsamość.';
+
+  @override
+  String get emailChangeWrongPassword => 'Obecne hasło jest nieprawidłowe. Spróbuj ponownie.';
+
+  @override
+  String get emailChangeProvider => 'Zaloguj się ponownie przez dostawcę konta. Potwierdzenie hasłem jest niedostępne dla tego konta.';
+
+  @override
+  String get emailChangeSession => 'Sesja jest nieważna. Wyloguj się i zaloguj ponownie.';
+
+  @override
+  String get emailChangeGeneric => 'Nie udało się wykonać żądania. Spróbuj ponownie.';
+
+  @override
+  String get emailChangeInUse => 'Nie można użyć tego adresu. Wybierz inny email.';
+
+  @override
+  String get emailChangeResend => 'Wyślij potwierdzenie ponownie';
+
+  @override
+  String get emailChangeSend => 'Wyślij potwierdzenie';
+
+  @override
+  String get emailChangeExpired => 'Link wygasł lub jest nieprawidłowy. Poproś o nową wiadomość.';
+
+  @override
+  String get emailSyncMissing => 'Email w Auth został zmieniony. Uzupełnij brakujący profil, aby zapisać jego kopię.';
 }

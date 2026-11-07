@@ -301,4 +301,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileNameRequired => 'Enter your name.';
+
+  @override
+  String get changeEmailTitle => 'Change email';
+
+  @override
+  String get newEmail => 'New email';
+
+  @override
+  String get emailChangeSame => 'Enter an email different from your current address.';
+
+  @override
+  String get emailChangeSent => 'Confirmation requested. Your current email stays unchanged until you confirm the link in the new inbox.';
+
+  @override
+  String get emailChangeCheck => 'I confirmed my new email';
+
+  @override
+  String get emailChangePending => 'The new email is not confirmed yet. Check your inbox and the link.';
+
+  @override
+  String get emailChangeSuccess => 'Email changed and profile synchronized.';
+
+  @override
+  String get emailSyncFailed => 'Your Auth email changed, but the profile could not be synchronized.';
+
+  @override
+  String get emailSyncRetry => 'Retry profile synchronization';
+
+  @override
+  String get emailChangeReauth => 'Enter your current password to confirm your identity.';
+
+  @override
+  String get emailChangeWrongPassword => 'The current password is incorrect. Try again.';
+
+  @override
+  String get emailChangeProvider => 'Sign in again using your account provider. Password reauthentication is not available for this account.';
+
+  @override
+  String get emailChangeSession => 'Your session is no longer valid. Sign out and sign in again.';
+
+  @override
+  String get emailChangeGeneric => 'Unable to complete the request. Please try again.';
+
+  @override
+  String get emailChangeInUse => 'This email cannot be used. Choose another address.';
+
+  @override
+  String get emailChangeResend => 'Resend confirmation';
+
+  @override
+  String get emailChangeSend => 'Send confirmation';
+
+  @override
+  String get emailChangeExpired => 'The link is expired or invalid. Request a new confirmation email.';
+
+  @override
+  String get emailSyncMissing => 'Your Auth email changed. Complete your missing profile to save its copy.';
 }

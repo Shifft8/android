@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:address_manager/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
-import 'edit_address_screen.dart';
+import 'add_address_screen.dart';
 
 class AddressDetailScreen extends StatefulWidget {
   final Map<String, String> addressItem;
@@ -15,6 +15,29 @@ class AddressDetailScreen extends StatefulWidget {
 }
 
 class _AddressDetailScreenState extends State<AddressDetailScreen> {
+  late final Map<String, String> _address = Map.of(widget.addressItem);
+
+  Future<void> _editAddress() async {
+    final docId = _address['docId'];
+    if (docId == null || docId.isEmpty) {
+      _showError(AppLocalizations.of(context)!.error);
+      return;
+    }
+    final result = await Navigator.push<Map<String, String>>(
+      context,
+      MaterialPageRoute(builder: (_) => AddressFormScreen(
+        docId: docId,
+        initialStreet: _address['street'],
+        initialHouseNumber: _address['houseNumber'],
+        initialCode: _address['code'],
+      )),
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      _address.addAll(result);
+      _address['title'] = '${result['street']} ${result['houseNumber']}'.trim();
+    });
+  }
   late final String? _uid = FirebaseAuth.instance.currentUser?.uid;
   late final String? _addressId = widget.addressItem['docId'];
   late final Stream<QuerySnapshot<Map<String, dynamic>>>? _notesStream =
@@ -47,7 +70,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
       List<QueryDocumentSnapshot<Map<String, dynamic>>> notes,
       {required bool includeNotes}) async {
     String textToSend =
-        '📍 Адрес: ${widget.addressItem['title']}\n🔑 Код: ${widget.addressItem['code']}';
+        '📍 Адрес: ${_address['title']}\n🔑 Код: ${_address['code']}';
 
     if (includeNotes && notes.isNotEmpty) {
       textToSend += '\n\n📝 Заметки:';
@@ -162,7 +185,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
                                   'userId': _uid,
                                   'addressId': _addressId,
                                   'addressTitle':
-                                      widget.addressItem['title'] ?? '',
+                                      _address['title'] ?? '',
                                   'title': content.split('\n').first,
                                   'content': content,
                                   'category': 'general',
@@ -244,7 +267,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          widget.addressItem['title'] ?? '',
+                          _address['title'] ?? '',
                           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -256,7 +279,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
                       const Icon(Icons.vpn_key_outlined, color: Colors.amber, size: 24),
                       const SizedBox(width: 12),
                       Text(
-                        'Код: ${widget.addressItem['code'] ?? ''}',
+                        'Код: ${_address['code'] ?? ''}',
                         style: TextStyle(fontSize: 16, color: Colors.grey[800], fontWeight: FontWeight.w500),
                       ),
                     ],
@@ -266,18 +289,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditAddressScreen(
-                                docId: 'test_id',
-                                initialStreet: widget.addressItem['title']!,
-                                initialCode: widget.addressItem['code']!,
-                              ),
-                            ),
-                          );
-                        },
+                        onPressed: _editAddress,
                         icon: const Icon(Icons.edit, size: 18),
                         label: const Text('Редактировать'),
                         style: OutlinedButton.styleFrom(

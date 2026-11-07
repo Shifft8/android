@@ -160,6 +160,8 @@ class _AddressListScreenState extends State<AddressListScreen> {
                                       'title': displayTitle,
                                       'code': code,
                                       'docId': docId,
+                                      'street': street,
+                                      'houseNumber': houseNumber,
                                     },
                                   ),
                                 ),

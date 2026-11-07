@@ -27,6 +27,8 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
   late TextEditingController _codeController;
   final _formKey = GlobalKey<FormState>();
 
+  bool _saving = false;
+
   bool get isEditing => widget.docId != null;
 
   @override
@@ -45,23 +47,68 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
     super.dispose();
   }
 
+  Future<void> _saveAddress() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
+    final loc = AppLocalizations.of(context)!;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.errorNoAuth)),
+      );
+      return;
+    }
+    final fields = {
+      'street': _streetController.text.trim(),
+      'houseNumber': _houseController.text.trim(),
+      'code': _codeController.text.trim(),
+    };
+    setState(() => _saving = true);
+    try {
+      final addresses = FirebaseFirestore.instance.collection('addresses');
+      if (isEditing) {
+        await addresses.doc(widget.docId).update(fields);
+      } else {
+        await addresses.add({
+          ...fields,
+          'userId': uid,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
+      if (!mounted) return;
+      // Enable popping before returning the successfully saved values.
+      setState(() => _saving = false);
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+      Navigator.of(context).pop(fields);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${loc.error}: $error'), backgroundColor: Colors.red),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     // Инициализируем локализацию
     final localizations = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      canPop: !_saving,
+      child: Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const BackButton(color: Colors.black),
+        leading: BackButton(color: Colors.black, onPressed: _saving ? () {} : () => Navigator.pop(context)),
         title: Text(
           isEditing ? localizations.editAddress : localizations.addAddress,
           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
-      body: SingleChildScrollView(
+      body: AbsorbPointer(
+        absorbing: _saving,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -94,62 +141,11 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
               ),
               const SizedBox(height: 32),
               ElevatedButton.icon(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => const Center(child: CircularProgressIndicator()),
-                    );
-
-                    try {
-                      final String? uid = FirebaseAuth.instance.currentUser?.uid;
-                      if (uid == null) throw Exception(localizations.errorNoAuth);
-
-                      final Map<String, dynamic> addressData = {
-                        'street': _streetController.text.trim(),
-                        'houseNumber': _houseController.text.trim(),
-                        'code': _codeController.text.trim(),
-                        'userId': uid,
-                        'timestamp': FieldValue.serverTimestamp(),
-                      };
-
-                      if (isEditing) {
-                        await FirebaseFirestore.instance
-                            .collection('addresses')
-                            .doc(widget.docId)
-                            .update(addressData);
-                      } else {
-                        await FirebaseFirestore.instance
-                            .collection('addresses')
-                            .add(addressData);
-                      }
-
-                      if (mounted) Navigator.pop(context); // закрыть спиннер
-                      if (mounted) Navigator.pop(context); // уйти обратно на список
-
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(localizations.added),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      if (mounted) Navigator.pop(context); // закрыть спиннер при ошибке
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${localizations.error}: $e'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  }
-                },
-                icon: const Icon(Icons.save, color: Colors.white),
+                onPressed: _saving ? null : _saveAddress,
+                icon: _saving
+                    ? const SizedBox(width: 20, height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.save, color: Colors.white),
                 label: Text(
                   localizations.save,
                   style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
@@ -165,7 +161,8 @@ class _AddressFormScreenState extends State<AddressFormScreen> {
           ),
         ),
       ),
-    );
+      ),
+    ));
   }
 
   Widget _buildInputField({

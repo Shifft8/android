@@ -55,19 +55,29 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         };
       }).toList();
 
+      if (!mounted) return;
       setState(() {
         _userAddresses = addresses;
       });
     } catch (e) {
-      print('Error loading addresses for notes: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${AppLocalizations.of(context)!.error}: $e')),
+      );
     }
   }
 
   Future<void> _saveNote() async {
+    if (_isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorNoAuth)),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -89,8 +99,8 @@ class _AddNoteScreenState extends State<AddNoteScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      setState(() => _isLoading = false);
       if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${AppLocalizations.of(context)!.error}: $e')),
         );

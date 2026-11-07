@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:address_manager/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 import 'edit_address_screen.dart';
 
@@ -12,28 +15,57 @@ class AddressDetailScreen extends StatefulWidget {
 }
 
 class _AddressDetailScreenState extends State<AddressDetailScreen> {
-  // Локальный список заметок для демонстрации
-  final List<String> _notes = [
-    'Звонить в звонок два раза, код на воротах может не срабатывать с первого раза.',
-    'Оставить материалы возле гаража под навесом.',
-  ];
+  late final String? _uid = FirebaseAuth.instance.currentUser?.uid;
+  late final String? _addressId = widget.addressItem['docId'];
+  late final Stream<QuerySnapshot<Map<String, dynamic>>>? _notesStream =
+      _uid == null || _addressId == null || _addressId!.isEmpty
+          ? null
+          : FirebaseFirestore.instance
+              .collection('notes')
+              .where('userId', isEqualTo: _uid)
+              .where('addressId', isEqualTo: _addressId)
+              .snapshots();
+
+  void _showError(Object error) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('${AppLocalizations.of(context)!.error}: $error'),
+    ));
+  }
+
+  Future<void> _deleteNote(
+      QueryDocumentSnapshot<Map<String, dynamic>> note) async {
+    try {
+      await note.reference.delete();
+    } catch (error) {
+      _showError(error);
+    }
+  }
 
   // Функция для шаринга данных через share_plus
-  void _shareAddress({required bool includeNotes}) {
-    String textToSend = '📍 Адрес: ${widget.addressItem['title']}\n🔑 Код: ${widget.addressItem['code']}';
+  Future<void> _shareAddress(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> notes,
+      {required bool includeNotes}) async {
+    String textToSend =
+        '📍 Адрес: ${widget.addressItem['title']}\n🔑 Код: ${widget.addressItem['code']}';
 
-    if (includeNotes && _notes.isNotEmpty) {
+    if (includeNotes && notes.isNotEmpty) {
       textToSend += '\n\n📝 Заметки:';
-      for (int i = 0; i < _notes.length; i++) {
-        textToSend += '\n${i + 1}. ${_notes[i]}';
+      for (int i = 0; i < notes.length; i++) {
+        textToSend += '\n${i + 1}. ${notes[i].data()['content'] ?? ''}';
       }
     }
 
-    Share.share(textToSend);
+    try {
+      await Share.share(textToSend);
+    } catch (error) {
+      _showError(error);
+    }
   }
 
   // Окно выбора: как именно поделиться адресом
-  void _showShareOptions() {
+  void _showShareOptions(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> notes) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -53,18 +85,20 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
               ListTile(
                 leading: const Icon(Icons.location_on, color: Colors.blue),
                 title: const Text('Только адрес и код'),
-                onTap: () { // ✅ ИСПРАВЛЕНО: вместо onPressed теперь onTap
+                onTap: () {
+                  // ✅ ИСПРАВЛЕНО: вместо onPressed теперь onTap
                   Navigator.pop(context);
-                  _shareAddress(includeNotes: false);
+                  _shareAddress(notes, includeNotes: false);
                 },
               ),
-              if (_notes.isNotEmpty)
+              if (notes.isNotEmpty)
                 ListTile(
                   leading: const Icon(Icons.assignment, color: Colors.amber),
                   title: const Text('Адрес вместе с заметками'),
-                  onTap: () { // ✅ ИСПРАВЛЕНО: вместо onPressed теперь onTap
+                  onTap: () {
+                    // ✅ ИСПРАВЛЕНО: вместо onPressed теперь onTap
                     Navigator.pop(context);
-                    _shareAddress(includeNotes: true);
+                    _shareAddress(notes, includeNotes: true);
                   },
                 ),
               const SizedBox(height: 10),
@@ -76,54 +110,95 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
   }
 
   // Диалоговое окно для создания или редактирования заметки
-  void _showNoteDialog({int? index}) {
-    final isEditing = index != null;
-    final controller = TextEditingController(
-      text: isEditing ? _notes[index] : '',
-    );
+  Future<void> _showNoteDialog(
+      {QueryDocumentSnapshot<Map<String, dynamic>>? note}) async {
+    if (_notesStream == null) return;
+    final isEditing = note != null;
+    String noteText = note?.data()['content'] as String? ?? '';
+    bool saving = false;
 
-    showDialog(
+    await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(isEditing ? 'Редактировать заметку' : 'Новая заметка'),
-        content: TextField(
-          controller: controller,
-          maxLines: 4,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Введите text заметки...',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.trim().isNotEmpty) {
-                setState(() {
-                  if (isEditing) {
-                    _notes[index] = controller.text.trim();
-                  } else {
-                    _notes.add(controller.text.trim());
-                  }
-                });
-                Navigator.pop(context);
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child: const Text('Сохранить', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+      builder: (dialogContext) => StatefulBuilder(
+          builder: (context, setDialogState) => PopScope(
+              canPop: !saving,
+              child: AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                title:
+                    Text(isEditing ? 'Редактировать заметку' : 'Новая заметка'),
+                content: TextFormField(
+                  initialValue: noteText,
+                  onChanged: (value) => noteText = value,
+                  maxLines: 4,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    hintText: 'Введите text заметки...',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed:
+                        saving ? null : () => Navigator.pop(dialogContext),
+                    child: const Text('Отмена',
+                        style: TextStyle(color: Colors.grey)),
+                  ),
+                  ElevatedButton(
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            final content = noteText.trim();
+                            if (content.isEmpty) return;
+                            setDialogState(() => saving = true);
+                            try {
+                              if (note != null) {
+                                await note.reference
+                                    .update({'content': content});
+                              } else {
+                                await FirebaseFirestore.instance
+                                    .collection('notes')
+                                    .add({
+                                  'userId': _uid,
+                                  'addressId': _addressId,
+                                  'addressTitle':
+                                      widget.addressItem['title'] ?? '',
+                                  'title': content.split('\n').first,
+                                  'content': content,
+                                  'category': 'general',
+                                  'timestamp': FieldValue.serverTimestamp(),
+                                });
+                              }
+                              if (dialogContext.mounted) {
+                                Navigator.pop(dialogContext);
+                              }
+                            } catch (error) {
+                              _showError(error);
+                            } finally {
+                              if (context.mounted) {
+                                setDialogState(() => saving = false);
+                              }
+                            }
+                          },
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                    child: const Text('Сохранить',
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ))),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: _notesStream,
+      builder: (context, snapshot) {
+        final notes = snapshot.data?.docs ?? [];
+        final loc = AppLocalizations.of(context)!;
+        final notesReady =
+            _notesStream != null && snapshot.hasData && !snapshot.hasError;
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -137,7 +212,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.share, color: Colors.black),
-            onPressed: _showShareOptions,
+            onPressed: () => _showShareOptions(notesReady ? notes : []),
           ),
         ],
       ),
@@ -212,7 +287,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
                         ),
                       ),
                       ElevatedButton.icon(
-                        onPressed: _showShareOptions,
+                        onPressed: () => _showShareOptions(notesReady ? notes : []),
                         icon: const Icon(Icons.share, size: 18, color: Colors.white),
                         label: const Text('Поделиться', style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
@@ -237,7 +312,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
                   'Заметки к объекту',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87), // ✅ ИСПРАВЛЕНО: Colors.black87 вместо black80
                 ),
-                if (_notes.isNotEmpty)
+                if (notesReady && notes.isNotEmpty)
                   IconButton(
                     icon: const Icon(Icons.add_circle, color: Colors.blue, size: 28),
                     onPressed: () => _showNoteDialog(),
@@ -248,7 +323,13 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
 
           // ─── СПИСОК ЗАМЕТОК ───
           Expanded(
-            child: _notes.isEmpty
+            child: _notesStream == null
+                ? Center(child: Text(_uid == null ? loc.errorNoAuth : loc.error))
+                : snapshot.hasError
+                ? Center(child: Text('${loc.error}: ${snapshot.error}'))
+                : !snapshot.hasData
+                ? const Center(child: CircularProgressIndicator())
+                : notes.isEmpty
                 ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -267,7 +348,7 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
               ),
             )
                 : ListView.builder(
-              itemCount: _notes.length,
+              itemCount: notes.length,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemBuilder: (context, index) {
                 return Card(
@@ -279,21 +360,17 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
                     side: BorderSide(color: Colors.grey.withOpacity(0.15)),
                   ),
                   child: ListTile(
-                    title: Text(_notes[index], style: const TextStyle(fontSize: 15, height: 1.3)),
+                    title: Text(notes[index].data()['content'] as String? ?? '', style: const TextStyle(fontSize: 15, height: 1.3)),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.grey, size: 20),
-                          onPressed: () => _showNoteDialog(index: index),
+                          onPressed: () => _showNoteDialog(note: notes[index]),
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                          onPressed: () {
-                            setState(() {
-                              _notes.removeAt(index);
-                            });
-                          },
+                          onPressed: () => _deleteNote(notes[index]),
                         ),
                       ],
                     ),
@@ -304,6 +381,8 @@ class _AddressDetailScreenState extends State<AddressDetailScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

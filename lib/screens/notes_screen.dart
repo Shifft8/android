@@ -195,10 +195,17 @@ class _NotesScreenState extends State<NotesScreen> {
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.redAccent, size: 20),
                               onPressed: () async {
-                                await FirebaseFirestore.instance
+                                try {
+                                  await FirebaseFirestore.instance
                                     .collection('notes')
                                     .doc(docId)
                                     .delete();
+                                } catch (error) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('${loc.error}: $error')),
+                                  );
+                                }
                               },
                             ),
                           ],

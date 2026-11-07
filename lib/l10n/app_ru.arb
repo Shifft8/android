@@ -73,9 +73,9 @@
   "changePasswordButton": "Изменить пароль",
   "passwordsDoNotMatch": "Пароли не совпадают",
   "passwordChangedSuccess": "Пароль успешно изменён",
-  "forgotPassword": "Восстановить пароль",
+  "forgotPassword": "Забыли пароль?",
   "resetPasswordButton": "Сбросить пароль",
-  "resetPasswordEmailSent": "Письмо для сброса пароля отправлено",
+  "resetPasswordEmailSent": "Если аккаунт с таким адресом существует, проверьте почту.",
   "password": "Пароль",
   "profileUpdated": "Профиль успешно обновлен!",
   "errorEmptyFields": "Имя и Email не могут быть пустыми!",
@@ -83,10 +83,14 @@
   "newNote": "Новая заметка",
   "addNote": "Добавить заметку",
   "notes": "Заметки",
-  "noNotes": "Заметок не найдено",
-  "selectNotesForSharing": "Выбрать адрес (опционально)",
+  "noNotes": "Нет заметок",
+  "selectNotesForSharing": "Выберите заметки для шаринга",
   "category": "Категория",
-  "title": "Название"
+  "title": "Название",
+  "resetEmailRequired": "Введите email.",
+  "resetEmailInvalid": "Введите корректный email.",
+  "resetNetworkError": "Нет соединения. Проверьте сеть и повторите попытку.",
+  "resetTooManyRequests": "Слишком много запросов. Подождите и попробуйте снова.",
+  "resetRequestError": "Не удалось отправить запрос. Попробуйте позже.",
+  "backToLogin": "Вернуться ко входу"
 }
-
-

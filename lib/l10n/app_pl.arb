@@ -73,9 +73,9 @@
   "changePasswordButton": "Zaktualizuj hasło",
   "passwordsDoNotMatch": "Hasła się nie zgadzają",
   "passwordChangedSuccess": "Hasło zostało pomyślnie zmienione",
-  "forgotPassword": "Odzyskaj hasło",
+  "forgotPassword": "Nie pamiętasz hasła?",
   "resetPasswordButton": "Zresetuj hasło",
-  "resetPasswordEmailSent": "E-mail do resetowania hasła został wysłany",
+  "resetPasswordEmailSent": "Jeśli konto z tym adresem istnieje, sprawdź pocztę.",
   "password": "Hasło",
   "profileUpdated": "Profil został pomyślnie zaktualizowany!",
   "errorEmptyFields": "Imię i e-mail nie mogą być puste!",
@@ -84,7 +84,13 @@
   "addNote": "Dodaj notatkę",
   "notes": "Notatki",
   "noNotes": "Brak notatek",
-  "selectNotesForSharing": "Wybierz adres (opcjonalnie)",
+  "selectNotesForSharing": "Wybierz notatki do udostępnienia",
   "category": "Kategoria",
-  "title": "Tytuł"
+  "title": "Tytuł",
+  "resetEmailRequired": "Wpisz adres email.",
+  "resetEmailInvalid": "Wpisz poprawny adres email.",
+  "resetNetworkError": "Brak połączenia. Sprawdź sieć i spróbuj ponownie.",
+  "resetTooManyRequests": "Zbyt wiele żądań. Poczekaj i spróbuj ponownie.",
+  "resetRequestError": "Nie udało się wysłać żądania. Spróbuj później.",
+  "backToLogin": "Powrót do logowania"
 }

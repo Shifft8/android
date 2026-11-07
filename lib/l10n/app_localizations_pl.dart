@@ -228,14 +228,47 @@ class AppLocalizationsPl extends AppLocalizations {
   String get passwordChangedSuccess => 'Hasło zostało pomyślnie zmienione';
 
   @override
-  String get forgotPassword => 'Odzyskaj hasło';
+  String get forgotPassword => 'Nie pamiętasz hasła?';
 
   @override
   String get resetPasswordButton => 'Zresetuj hasło';
 
   @override
-  String get resetPasswordEmailSent => 'E-mail do resetowania hasła został wysłany';
+  String get resetPasswordEmailSent => 'Jeśli konto z tym adresem istnieje, sprawdź pocztę.';
 
   @override
   String get password => 'Hasło';
+
+  @override
+  String get profileUpdated => 'Profil został pomyślnie zaktualizowany!';
+
+  @override
+  String get errorEmptyFields => 'Imię i e-mail nie mogą być puste!';
+
+  @override
+  String get emailNotVerified => 'Twój e-mail nie jest zweryfikowany. Wyłaliśmy nowy link weryfikacyjny. Sprawdź swoją skrzynkę odbiorczą!';
+
+  @override
+  String get category => 'Kategoria';
+
+  @override
+  String get title => 'Tytuł';
+
+  @override
+  String get resetEmailRequired => 'Wpisz adres email.';
+
+  @override
+  String get resetEmailInvalid => 'Wpisz poprawny adres email.';
+
+  @override
+  String get resetNetworkError => 'Brak połączenia. Sprawdź sieć i spróbuj ponownie.';
+
+  @override
+  String get resetTooManyRequests => 'Zbyt wiele żądań. Poczekaj i spróbuj ponownie.';
+
+  @override
+  String get resetRequestError => 'Nie udało się wysłać żądania. Spróbuj później.';
+
+  @override
+  String get backToLogin => 'Powrót do logowania';
 }

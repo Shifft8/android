@@ -228,14 +228,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordChangedSuccess => 'Password successfully changed';
 
   @override
-  String get forgotPassword => 'Forgot password';
+  String get forgotPassword => 'Forgot password?';
 
   @override
   String get resetPasswordButton => 'Reset password';
 
   @override
-  String get resetPasswordEmailSent => 'Password reset email sent';
+  String get resetPasswordEmailSent => 'If an account with this email exists, check your inbox.';
 
   @override
   String get password => 'Password';
+
+  @override
+  String get profileUpdated => 'Profile successfully updated!';
+
+  @override
+  String get errorEmptyFields => 'Name and Email cannot be empty!';
+
+  @override
+  String get emailNotVerified => 'Your Email is not verified. We sent a new verification link. Please check your inbox!';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get title => 'Title';
+
+  @override
+  String get resetEmailRequired => 'Enter your email address.';
+
+  @override
+  String get resetEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get resetNetworkError => 'Connection failed. Check your network and try again.';
+
+  @override
+  String get resetTooManyRequests => 'Too many requests. Please wait and try again.';
+
+  @override
+  String get resetRequestError => 'Unable to send the request. Please try again later.';
+
+  @override
+  String get backToLogin => 'Back to sign in';
 }

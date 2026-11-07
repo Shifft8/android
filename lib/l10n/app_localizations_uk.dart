@@ -228,14 +228,47 @@ class AppLocalizationsUk extends AppLocalizations {
   String get passwordChangedSuccess => 'Пароль успішно змінено';
 
   @override
-  String get forgotPassword => 'Відновити пароль';
+  String get forgotPassword => 'Забули пароль?';
 
   @override
   String get resetPasswordButton => 'Скинути пароль';
 
   @override
-  String get resetPasswordEmailSent => 'Лист для скидання пароля надіслано';
+  String get resetPasswordEmailSent => 'Якщо акаунт із такою адресою існує, перевірте пошту.';
 
   @override
   String get password => 'Пароль';
+
+  @override
+  String get profileUpdated => 'Профіль успішно оновлено!';
+
+  @override
+  String get errorEmptyFields => 'Ім\'я та Email не можуть бути порожніми!';
+
+  @override
+  String get emailNotVerified => 'Ваш Email не підтверджено. Ми надіслали новий лист із посиланням. Перевірте пошту перед входом!';
+
+  @override
+  String get category => 'Категорія';
+
+  @override
+  String get title => 'Назва';
+
+  @override
+  String get resetEmailRequired => 'Введіть email.';
+
+  @override
+  String get resetEmailInvalid => 'Введіть коректний email.';
+
+  @override
+  String get resetNetworkError => 'Немає з’єднання. Перевірте мережу та спробуйте знову.';
+
+  @override
+  String get resetTooManyRequests => 'Забагато запитів. Зачекайте та спробуйте знову.';
+
+  @override
+  String get resetRequestError => 'Не вдалося надіслати запит. Спробуйте пізніше.';
+
+  @override
+  String get backToLogin => 'Повернутися до входу';
 }

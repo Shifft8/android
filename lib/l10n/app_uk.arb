@@ -73,9 +73,9 @@
   "changePasswordButton": "Оновити пароль",
   "passwordsDoNotMatch": "Паролі не співпадають",
   "passwordChangedSuccess": "Пароль успішно змінено",
-  "forgotPassword": "Відновити пароль",
+  "forgotPassword": "Забули пароль?",
   "resetPasswordButton": "Скинути пароль",
-  "resetPasswordEmailSent": "Лист для скидання пароля надіслано",
+  "resetPasswordEmailSent": "Якщо акаунт із такою адресою існує, перевірте пошту.",
   "password": "Пароль",
   "profileUpdated": "Профіль успішно оновлено!",
   "errorEmptyFields": "Ім'я та Email не можуть бути порожніми!",
@@ -84,7 +84,13 @@
   "addNote": "Додати нотатку",
   "notes": "Нотатки",
   "noNotes": "Немає нотаток",
-  "selectNotesForSharing": "Виберіть адресу (опціонально)",
+  "selectNotesForSharing": "Виберіть нотатки для поширення",
   "category": "Категорія",
-  "title": "Назва"
+  "title": "Назва",
+  "resetEmailRequired": "Введіть email.",
+  "resetEmailInvalid": "Введіть коректний email.",
+  "resetNetworkError": "Немає з’єднання. Перевірте мережу та спробуйте знову.",
+  "resetTooManyRequests": "Забагато запитів. Зачекайте та спробуйте знову.",
+  "resetRequestError": "Не вдалося надіслати запит. Спробуйте пізніше.",
+  "backToLogin": "Повернутися до входу"
 }

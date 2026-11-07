@@ -228,14 +228,47 @@ class AppLocalizationsRu extends AppLocalizations {
   String get passwordChangedSuccess => 'Пароль успешно изменён';
 
   @override
-  String get forgotPassword => 'Восстановить пароль';
+  String get forgotPassword => 'Забыли пароль?';
 
   @override
   String get resetPasswordButton => 'Сбросить пароль';
 
   @override
-  String get resetPasswordEmailSent => 'Письмо для сброса пароля отправлено';
+  String get resetPasswordEmailSent => 'Если аккаунт с таким адресом существует, проверьте почту.';
 
   @override
   String get password => 'Пароль';
+
+  @override
+  String get profileUpdated => 'Профиль успешно обновлен!';
+
+  @override
+  String get errorEmptyFields => 'Имя и Email не могут быть пустыми!';
+
+  @override
+  String get emailNotVerified => 'Ваш Email не подтвержден. Мы отправили новое письмо со ссылкой. Проверьте почту перед входом!';
+
+  @override
+  String get category => 'Категория';
+
+  @override
+  String get title => 'Название';
+
+  @override
+  String get resetEmailRequired => 'Введите email.';
+
+  @override
+  String get resetEmailInvalid => 'Введите корректный email.';
+
+  @override
+  String get resetNetworkError => 'Нет соединения. Проверьте сеть и повторите попытку.';
+
+  @override
+  String get resetTooManyRequests => 'Слишком много запросов. Подождите и попробуйте снова.';
+
+  @override
+  String get resetRequestError => 'Не удалось отправить запрос. Попробуйте позже.';
+
+  @override
+  String get backToLogin => 'Вернуться ко входу';
 }

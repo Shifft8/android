@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:address_manager/l10n/app_localizations.dart';
 import 'email_verification_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final ValueChanged<bool>? onAuthBusyChanged;
@@ -298,6 +299,16 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
 
+              if (!_isSignUp)
+                TextButton(
+                  onPressed: _loading ? null : () => Navigator.push<void>(
+                    context,
+                    MaterialPageRoute(builder: (_) => ForgotPasswordScreen(
+                      initialEmail: _emailController.text.trim(),
+                    )),
+                  ),
+                  child: Text(loc.forgotPassword),
+                ),
               TextButton(
                 onPressed: _loading ? null : () {
                   setState(() {

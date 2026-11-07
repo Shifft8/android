@@ -540,7 +540,7 @@ abstract class AppLocalizations {
   /// No description provided for @forgotPassword.
   ///
   /// In en, this message translates to:
-  /// **'Forgot password'**
+  /// **'Forgot password?'**
   String get forgotPassword;
 
   /// No description provided for @resetPasswordButton.
@@ -552,7 +552,7 @@ abstract class AppLocalizations {
   /// No description provided for @resetPasswordEmailSent.
   ///
   /// In en, this message translates to:
-  /// **'Password reset email sent'**
+  /// **'If an account with this email exists, check your inbox.'**
   String get resetPasswordEmailSent;
 
   /// No description provided for @password.
@@ -560,6 +560,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile successfully updated!'**
+  String get profileUpdated;
+
+  /// No description provided for @errorEmptyFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Name and Email cannot be empty!'**
+  String get errorEmptyFields;
+
+  /// No description provided for @emailNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Email is not verified. We sent a new verification link. Please check your inbox!'**
+  String get emailNotVerified;
+
+  /// No description provided for @category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get category;
+
+  /// No description provided for @title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get title;
+
+  /// No description provided for @resetEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address.'**
+  String get resetEmailRequired;
+
+  /// No description provided for @resetEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get resetEmailInvalid;
+
+  /// No description provided for @resetNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed. Check your network and try again.'**
+  String get resetNetworkError;
+
+  /// No description provided for @resetTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please wait and try again.'**
+  String get resetTooManyRequests;
+
+  /// No description provided for @resetRequestError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to send the request. Please try again later.'**
+  String get resetRequestError;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get backToLogin;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:address_manager/l10n/app_localizations.dart';
 import '../services/email_change_service.dart';
 import 'change_email_screen.dart';
+import 'change_password_screen.dart';
 
 
 
@@ -156,6 +157,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   Object? _loadError;
   Object? _emailSyncError;
   bool _openingEmail = false;
+  bool _openingPassword = false;
   bool _saved = false;
   String _userName = '';
   String _userPhone = '';
@@ -325,6 +327,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
+  Future<void> _showChangePassword() async {
+    if (_openingPassword) return;
+    final user = _auth.currentUser;
+    if (user == null || user.uid != _loadedUid) return;
+    _openingPassword = true;
+    try {
+      await Navigator.push<void>(context, MaterialPageRoute(builder: (_) => ChangePasswordScreen(
+        auth: _auth, uid: user.uid,
+      )));
+    } finally {
+      _openingPassword = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Получаем экземпляр локализации в самом начале сборки экрана
@@ -475,6 +491,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 onPressed: _showChangeEmail,
                 icon: const Icon(Icons.email_outlined),
                 label: Text(localizations.changeEmailTitle),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: _showChangePassword,
+                icon: const Icon(Icons.lock_outline),
+                label: Text(localizations.changePassword),
               ),
             ),
             const SizedBox(height: 16),

@@ -358,4 +358,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emailSyncMissing => 'Your Auth email changed. Complete your missing profile to save its copy.';
+
+  @override
+  String get passwordRequired => 'Enter a password.';
+
+  @override
+  String get passwordTooShort => 'Use at least 6 characters.';
+
+  @override
+  String get passwordWeak => 'The new password does not meet the account password policy. Choose a stronger password.';
+
+  @override
+  String get passwordRecentLogin => 'Fresh authentication is required. Sign in again before changing your password.';
+
+  @override
+  String get passwordChangeFailed => 'Unable to change the password. Please try again.';
+
+  @override
+  String get passwordChangeUncertain => 'The connection was lost while changing the password. It may already have changed. Check sign-in or use Forgot password.';
+
+  @override
+  String get passwordProviderUnavailable => 'Password change is unavailable for accounts without a password sign-in provider.';
+
+  @override
+  String get passwordEmailUnverified => 'Verify your email before changing your password.';
+
+  @override
+  String get passwordBackToProfile => 'Back to profile';
 }

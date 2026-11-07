@@ -121,5 +121,14 @@
   "emailChangeResend": "Resend confirmation",
   "emailChangeSend": "Send confirmation",
   "emailChangeExpired": "The link is expired or invalid. Request a new confirmation email.",
-  "emailSyncMissing": "Your Auth email changed. Complete your missing profile to save its copy."
+  "emailSyncMissing": "Your Auth email changed. Complete your missing profile to save its copy.",
+  "passwordRequired": "Enter a password.",
+  "passwordTooShort": "Use at least 6 characters.",
+  "passwordWeak": "The new password does not meet the account password policy. Choose a stronger password.",
+  "passwordRecentLogin": "Fresh authentication is required. Sign in again before changing your password.",
+  "passwordChangeFailed": "Unable to change the password. Please try again.",
+  "passwordChangeUncertain": "The connection was lost while changing the password. It may already have changed. Check sign-in or use Forgot password.",
+  "passwordProviderUnavailable": "Password change is unavailable for accounts without a password sign-in provider.",
+  "passwordEmailUnverified": "Verify your email before changing your password.",
+  "passwordBackToProfile": "Back to profile"
 }

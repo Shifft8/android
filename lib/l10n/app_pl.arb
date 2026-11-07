@@ -121,5 +121,14 @@
   "emailChangeResend": "Wyślij potwierdzenie ponownie",
   "emailChangeSend": "Wyślij potwierdzenie",
   "emailChangeExpired": "Link wygasł lub jest nieprawidłowy. Poproś o nową wiadomość.",
-  "emailSyncMissing": "Email w Auth został zmieniony. Uzupełnij brakujący profil, aby zapisać jego kopię."
+  "emailSyncMissing": "Email w Auth został zmieniony. Uzupełnij brakujący profil, aby zapisać jego kopię.",
+  "passwordRequired": "Wpisz hasło.",
+  "passwordTooShort": "Użyj co najmniej 6 znaków.",
+  "passwordWeak": "Nowe hasło nie spełnia zasad konta. Wybierz silniejsze hasło.",
+  "passwordRecentLogin": "Wymagane jest ponowne uwierzytelnienie. Zaloguj się ponownie przed zmianą hasła.",
+  "passwordChangeFailed": "Nie udało się zmienić hasła. Spróbuj ponownie.",
+  "passwordChangeUncertain": "Połączenie zostało przerwane podczas zmiany hasła. Hasło mogło już się zmienić. Sprawdź logowanie lub użyj opcji odzyskiwania hasła.",
+  "passwordProviderUnavailable": "Zmiana hasła jest niedostępna dla kont bez logowania hasłem.",
+  "passwordEmailUnverified": "Potwierdź email przed zmianą hasła.",
+  "passwordBackToProfile": "Powrót do profilu"
 }

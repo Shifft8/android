@@ -358,4 +358,31 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get emailSyncMissing => 'Email в Auth змінено. Заповніть відсутній профіль, щоб зберегти його копію.';
+
+  @override
+  String get passwordRequired => 'Введіть пароль.';
+
+  @override
+  String get passwordTooShort => 'Використовуйте щонайменше 6 символів.';
+
+  @override
+  String get passwordWeak => 'Новий пароль не відповідає вимогам акаунта. Оберіть надійніший пароль.';
+
+  @override
+  String get passwordRecentLogin => 'Потрібна свіжа авторизація. Увійдіть знову перед зміною пароля.';
+
+  @override
+  String get passwordChangeFailed => 'Не вдалося змінити пароль. Спробуйте знову.';
+
+  @override
+  String get passwordChangeUncertain => 'З’єднання перервалося під час зміни пароля. Він уже міг змінитися. Перевірте вхід або скористайтеся відновленням пароля.';
+
+  @override
+  String get passwordProviderUnavailable => 'Зміна пароля недоступна для акаунтів без входу за паролем.';
+
+  @override
+  String get passwordEmailUnverified => 'Підтвердьте email перед зміною пароля.';
+
+  @override
+  String get passwordBackToProfile => 'Повернутися до профілю';
 }

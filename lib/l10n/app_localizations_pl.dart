@@ -358,4 +358,31 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get emailSyncMissing => 'Email w Auth został zmieniony. Uzupełnij brakujący profil, aby zapisać jego kopię.';
+
+  @override
+  String get passwordRequired => 'Wpisz hasło.';
+
+  @override
+  String get passwordTooShort => 'Użyj co najmniej 6 znaków.';
+
+  @override
+  String get passwordWeak => 'Nowe hasło nie spełnia zasad konta. Wybierz silniejsze hasło.';
+
+  @override
+  String get passwordRecentLogin => 'Wymagane jest ponowne uwierzytelnienie. Zaloguj się ponownie przed zmianą hasła.';
+
+  @override
+  String get passwordChangeFailed => 'Nie udało się zmienić hasła. Spróbuj ponownie.';
+
+  @override
+  String get passwordChangeUncertain => 'Połączenie zostało przerwane podczas zmiany hasła. Hasło mogło już się zmienić. Sprawdź logowanie lub użyj opcji odzyskiwania hasła.';
+
+  @override
+  String get passwordProviderUnavailable => 'Zmiana hasła jest niedostępna dla kont bez logowania hasłem.';
+
+  @override
+  String get passwordEmailUnverified => 'Potwierdź email przed zmianą hasła.';
+
+  @override
+  String get passwordBackToProfile => 'Powrót do profilu';
 }

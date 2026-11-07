@@ -800,6 +800,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your Auth email changed. Complete your missing profile to save its copy.'**
   String get emailSyncMissing;
+
+  /// No description provided for @passwordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a password.'**
+  String get passwordRequired;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 6 characters.'**
+  String get passwordTooShort;
+
+  /// No description provided for @passwordWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'The new password does not meet the account password policy. Choose a stronger password.'**
+  String get passwordWeak;
+
+  /// No description provided for @passwordRecentLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh authentication is required. Sign in again before changing your password.'**
+  String get passwordRecentLogin;
+
+  /// No description provided for @passwordChangeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to change the password. Please try again.'**
+  String get passwordChangeFailed;
+
+  /// No description provided for @passwordChangeUncertain.
+  ///
+  /// In en, this message translates to:
+  /// **'The connection was lost while changing the password. It may already have changed. Check sign-in or use Forgot password.'**
+  String get passwordChangeUncertain;
+
+  /// No description provided for @passwordProviderUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Password change is unavailable for accounts without a password sign-in provider.'**
+  String get passwordProviderUnavailable;
+
+  /// No description provided for @passwordEmailUnverified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email before changing your password.'**
+  String get passwordEmailUnverified;
+
+  /// No description provided for @passwordBackToProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to profile'**
+  String get passwordBackToProfile;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
